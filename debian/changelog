@@ -1,3 +1,10 @@
+nplan (0.25) UNRELEASED; urgency=medium
+
+  * tests/integration.py: don't wait for NetworkManager to settle when it
+    should not be managing devices.
+
+ -- Mathieu Trudel-Lapierre <cyphermox@ubuntu.com>  Thu, 22 Jun 2017 16:27:45 -0400
+
 nplan (0.24) artful; urgency=medium
 
   * debian/control: set Priority to important to make sure we can get into
