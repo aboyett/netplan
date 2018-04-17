@@ -67,22 +67,26 @@ python-coverage:
 	python3-coverage html -d test-coverage/python --omit=/usr* || true
 	python3-coverage xml --omit=/usr* || true
 
-install: default
-	mkdir -p $(DESTDIR)/$(SBINDIR) $(DESTDIR)/$(ROOTLIBEXECDIR)/netplan $(DESTDIR)/$(SYSTEMD_GENERATOR_DIR)
+install-doc: doc/netplan.5 doc/netplan.html
 	mkdir -p $(DESTDIR)/$(MANDIR)/man5 $(DESTDIR)/$(MANDIR)/man8
 	mkdir -p $(DESTDIR)/$(DOCDIR)/netplan/examples
+	install -m 644 doc/*.html $(DESTDIR)/$(DOCDIR)/netplan/
+	install -m 644 examples/*.yaml $(DESTDIR)/$(DOCDIR)/netplan/examples/
+	install -m 644 doc/*.5 $(DESTDIR)/$(MANDIR)/man5/
+	install -m 644 doc/*.8 $(DESTDIR)/$(MANDIR)/man8/
+
+install-bin: generate
+	mkdir -p $(DESTDIR)/$(SBINDIR) $(DESTDIR)/$(ROOTLIBEXECDIR)/netplan $(DESTDIR)/$(SYSTEMD_GENERATOR_DIR)
 	mkdir -p $(DESTDIR)/$(DATADIR)/netplan/netplan
 	install -m 755 generate $(DESTDIR)/$(ROOTLIBEXECDIR)/netplan/
 	find netplan/ -name '*.py' -exec install -Dm 644 "{}" "$(DESTDIR)/$(DATADIR)/netplan/{}" \;
 	install -m 755 src/netplan.script $(DESTDIR)/$(DATADIR)/netplan/
 	ln -sr $(DESTDIR)/$(DATADIR)/netplan/netplan.script $(DESTDIR)/$(SBINDIR)/netplan
 	ln -sr $(DESTDIR)/$(ROOTLIBEXECDIR)/netplan/generate $(DESTDIR)/$(SYSTEMD_GENERATOR_DIR)/netplan
-	install -m 644 doc/*.html $(DESTDIR)/$(DOCDIR)/netplan/
-	install -m 644 examples/*.yaml $(DESTDIR)/$(DOCDIR)/netplan/examples/
-	install -m 644 doc/*.5 $(DESTDIR)/$(MANDIR)/man5/
-	install -m 644 doc/*.8 $(DESTDIR)/$(MANDIR)/man8/
 	install -D -m 644 src/netplan-wpa@.service $(DESTDIR)/$(SYSTEMD_UNIT_DIR)/netplan-wpa@.service
 	install -T -D -m 644 netplan.completions $(DESTDIR)/$(BASH_COMPLETIONS_DIR)/netplan
+
+install: install-bin install-doc
 
 %.html: %.md
 	pandoc -s --toc -o $@ $<
