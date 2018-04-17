@@ -5,9 +5,11 @@ BUILDFLAGS = \
 	-Werror \
 	$(NULL)
 
-SYSTEMD_GENERATOR_DIR=$(shell pkg-config --variable=systemdsystemgeneratordir systemd)
-SYSTEMD_UNIT_DIR=$(shell pkg-config --variable=systemdsystemunitdir systemd)
-BASH_COMPLETIONS_DIR=$(shell pkg-config --variable=completionsdir bash-completion || echo "/etc/bash_completion.d")
+PKG_CONFIG ?= pkg-config
+
+SYSTEMD_GENERATOR_DIR=$(shell $(PKG_CONFIG) --variable=systemdsystemgeneratordir systemd)
+SYSTEMD_UNIT_DIR=$(shell $(PKG_CONFIG) --variable=systemdsystemunitdir systemd)
+BASH_COMPLETIONS_DIR=$(shell $(PKG_CONFIG) --variable=completionsdir bash-completion || echo "/etc/bash_completion.d")
 
 ROOTPREFIX ?= /
 PREFIX ?= /usr
@@ -26,7 +28,7 @@ PYCODESTYLE3 ?= $(shell which pycodestyle-3 || which pycodestyle || which pep8 |
 default: generate doc/netplan.5 doc/netplan.html
 
 generate: src/generate.[hc] src/parse.[hc] src/util.[hc] src/networkd.[hc] src/nm.[hc]
-	$(CC) $(BUILDFLAGS) $(CFLAGS) -o $@ $(filter %.c, $^) `pkg-config --cflags --libs glib-2.0 gio-2.0 yaml-0.1 uuid`
+	$(CC) $(BUILDFLAGS) $(CFLAGS) -o $@ $(filter %.c, $^) `$(PKG_CONFIG) --cflags --libs glib-2.0 gio-2.0 yaml-0.1 uuid`
 
 clean:
 	rm -f generate doc/*.html doc/*.[1-9]
